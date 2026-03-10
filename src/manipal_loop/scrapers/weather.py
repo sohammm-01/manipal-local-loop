@@ -83,6 +83,7 @@ class WeatherScraper(BaseScraper):
 
         if not alert_worthy:
             logger.info("Weather normal in %s — no alert needed", city_name)
+            return []
 
         title = f"Weather Update: {city_name} — {weather_desc.capitalize()}"
         body = (

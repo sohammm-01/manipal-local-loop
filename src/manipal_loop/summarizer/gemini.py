@@ -48,7 +48,7 @@ class GeminiSummarizer:
             return title
 
         prompt = (
-            f"Summarise the following news item from Manipal/Udupi in exactly "
+            f"Summarize the following news item from Manipal/Udupi in exactly "
             f"two concise sentences suitable for a Telegram notification:\n\n"
             f"Title: {title}\nBody: {body}"
         )

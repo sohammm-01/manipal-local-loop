@@ -211,11 +211,7 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     db = get_db()
     chat_id = update.effective_chat.id
     db.add_user(chat_id, update.effective_user.username or "")
-    row = db._get_conn().execute(
-        "SELECT subscribed_categories FROM users WHERE telegram_chat_id = ?",
-        (chat_id,),
-    ).fetchone()
-    cats = json.loads(row["subscribed_categories"] or "[]") if row else []
+    cats = db.get_user_subscriptions(chat_id)
     if category not in cats:
         cats.append(category)
     db.update_subscriptions(chat_id, cats)
@@ -244,11 +240,7 @@ async def unsubscribe_command(
     category = " ".join(context.args).strip()
     db = get_db()
     chat_id = update.effective_chat.id
-    row = db._get_conn().execute(
-        "SELECT subscribed_categories FROM users WHERE telegram_chat_id = ?",
-        (chat_id,),
-    ).fetchone()
-    cats = json.loads(row["subscribed_categories"] or "[]") if row else []
+    cats = db.get_user_subscriptions(chat_id)
     if category in cats:
         cats.remove(category)
     db.update_subscriptions(chat_id, cats)
@@ -267,15 +259,14 @@ async def mystatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     db = get_db()
     chat_id = update.effective_chat.id
-    row = db._get_conn().execute(
-        "SELECT * FROM users WHERE telegram_chat_id = ?", (chat_id,)
-    ).fetchone()
+    row = db.get_user_row(chat_id)
 
     if not row:
         await update.message.reply_text("You are not registered. Use /start first.")
         return
 
-    cats = json.loads(row["subscribed_categories"] or "[]")
+    cats = row.get("subscribed_categories")
+    cats = json.loads(cats or "[]")
     cat_text = ", ".join(cats) if cats else "All categories"
     await update.message.reply_html(
         f"👤 <b>Your Status</b>\n\n"

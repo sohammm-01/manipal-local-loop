@@ -265,6 +265,51 @@ class DatabaseManager:
         )
         conn.commit()
 
+    def get_user_subscriptions(self, chat_id: int) -> List[str]:
+        """Return the list of subscribed categories for a Telegram user.
+
+        Args:
+            chat_id: Telegram chat ID.
+
+        Returns:
+            List of category strings, or empty list if user not found.
+        """
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT subscribed_categories FROM users WHERE telegram_chat_id = ?",
+            (chat_id,),
+        ).fetchone()
+        if not row:
+            return []
+        return json.loads(row["subscribed_categories"] or "[]")
+
+    def get_user_row(self, chat_id: int) -> Optional[dict]:
+        """Return the full user row for a given Telegram chat ID.
+
+        Args:
+            chat_id: Telegram chat ID.
+
+        Returns:
+            User dict, or None if not found.
+        """
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT * FROM users WHERE telegram_chat_id = ?", (chat_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+    def get_all_active_users(self) -> List[dict]:
+        """Return all active users.
+
+        Returns:
+            List of user dicts for is_active = 1.
+        """
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM users WHERE is_active = 1"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
 
 # Module-level singleton
 _db_instance: Optional[DatabaseManager] = None

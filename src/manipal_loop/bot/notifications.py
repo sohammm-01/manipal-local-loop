@@ -67,11 +67,7 @@ async def send_daily_digest(bot, db_manager, summarizer) -> None:
     digest = summarizer.generate_daily_digest(updates)
 
     try:
-        conn = db_manager._get_conn()
-        rows = conn.execute(
-            "SELECT * FROM users WHERE is_active = 1"
-        ).fetchall()
-        subscribers = [dict(r) for r in rows]
+        subscribers = db_manager.get_all_active_users()
     except Exception as exc:
         logger.error("Could not fetch all active subscribers: %s", exc)
         return
