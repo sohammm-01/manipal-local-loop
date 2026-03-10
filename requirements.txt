@@ -3,7 +3,7 @@ feedparser>=6.0
 beautifulsoup4>=4.12
 requests>=2.31
 google-generativeai>=0.3
-googletrans==4.0.0-rc.1
+deep-translator>=1.11
 apscheduler>=3.10
 python-dotenv>=1.0
 flake8>=6.0
